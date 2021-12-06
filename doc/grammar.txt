@@ -1,0 +1,11 @@
+label start :== <identifier>: {
+label end :== }
+identifier :== any word
+reference :== <identifier>
+literal :== [type] <numeric literal | string literal>
+numeric literal :== any real number
+string literal :== any surrounded by double quotes ("")
+type :== byte | short | int | long | float | double
+instruction :== <mnemonic> [operand1[, operandN...]]
+operand :== <reference | literal>
+mnemonic :== ref | copy | set | push | pop | call | add | del | def | ret

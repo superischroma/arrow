@@ -1,0 +1,32 @@
+ref <identifier>, <space> - Reference Creation
+Creates a reference to a pool of memory. <identifier> defines a name for the reference, and <space> defines the amount of memory to allocate.
+
+copy <reference>, <literal | reference>[, <offset>] - Copy
+Copies data from a <literal> or other <reference> and puts it in the first <reference>. <offset> is also an optional action which writes to an offsetted memory location.
+
+set <reference>, <literal | reference> - Set Reference
+Sets the memory address for where the first operand is pointing to.
+
+pass <reference | literal> - Pass into Function Call
+Stores a <reference> or <literal> so that it can be used when calling the next function.
+
+pull <reference> - Pull from Function Call
+Gets the latest argument passed into a function. Using this instruction will then move to the next argument if used again.
+
+call <label> - Returnable Label Jump
+Makes a jump to the <label> specified, then returns to where the program left off.
+
+add <reference>, <literal | reference> - Add
+Adds the value of the second operand into the first.
+
+del <reference> - Delete Reference
+Deletes a reference's allocated memory. This is automatically ran for every reference at the end of the program.
+
+ret [reference | literal] - Set Return Value
+Sets the return value for the current label. This does NOT have to be the last instruction in the label body.
+
+store <reference> - Store Return Value
+Copies the return value of a function call into <reference>. This is generally used directly after a call instruction, but it is not required.
+
+asm <string literal> - Inline Assembly Instruction
+Writes the specified inline assembly instruction at the place of this instruction.
