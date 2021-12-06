@@ -1,0 +1,25 @@
+{
+    "name": "arrow",
+    "displayName": "arrow",
+    "description": "lol",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.60.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "arrow",
+            "aliases": ["arrow", "arrow"],
+            "extensions": [".ar"],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "arrow",
+            "scopeName": "source.ar",
+            "path": "./syntaxes/arrow.tmLanguage.json"
+        }]
+    }
+}

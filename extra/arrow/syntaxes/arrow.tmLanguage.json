@@ -1,0 +1,87 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "arrow",
+	"patterns": [
+		{
+			"include": "#comments"
+		},
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#strings"
+		},
+		{
+			"include": "#variables"
+		},
+		{
+			"include": "#constants"
+		},
+		{
+			"include": "#labels"
+		}
+	],
+	"repository": {
+		"comments": {
+			"patterns": [{
+				"begin": "#",
+				"beginCaptures": {
+					"0": {
+						"name": "comment.line.double-slash"
+					}
+				},
+				"end": "\\n",
+				"name": "comment.line.double-slash.ar"
+			}]
+		},
+		"keywords": {
+			"patterns": [{
+				"name": "keyword.control.arrow",
+				"match": "\\b(ret|call)\\b"
+			}]
+		},
+		"strings": {
+			"patterns": [
+				{
+					"name": "constant.character.escape.arrow",
+					"match": "\\\\."
+				},
+				{
+					"name": "string.quoted.double.arrow",
+					"begin": "\"",
+					"end": "\""
+				},
+				{
+					"name": "string.quoted.single.arrow",
+					"begin": "'",
+					"end": "'"
+				}
+			]
+		},
+		"constants": {
+			"patterns": [
+				{
+					"name": "constant.numeric",
+					"match": "\\d+(\\.\\d+)?"
+				},
+				{
+					"name": "constant.language",
+					"match": "\\b(def|ref|copy|pass|pull|store|push|pop|asm|add|del|true|false|byte|short|int|long|float|double)\\b|\\*+"
+				},
+				{
+					"name": "constant.language",
+					"match": "/(\\*+)/g"
+				}
+			]
+		},
+		"labels": {
+			"patterns": [
+				{
+					"name": "entity.name.function",
+					"match": "(\\w+(?=\\s+{))|(call\\s+\\K\\S+)"
+				}
+			]
+		}
+	},
+	"scopeName": "source.ar"
+}
