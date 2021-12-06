@@ -1,25 +1,25 @@
 def printf # tells the compiler that 'printf' should be defined
 
-main { # our entry point label
-    ref x, 8 # refer x to a block of memory which is 8 bytes wide
-    copy x, 15 # copy 15 into x with no offset
-    ref y, 8
-    copy y, "%d"
-    pass *y # load string literal "%d" as an argument
-    pass *x # load x as an argument as well
-    call printf # call the 'printf' function we imported
-    asm "mov qword [rbp - 8], rax"
-    del x
-    ret 0
+a { # a simple add function
+    ref x, 8 # allocate 8 bytes for 'b'
+    pull *x # pop the first value off the stack and store its value into a
+    ref y, 8 # allocate 8 bytes for 'a'
+    pull *y # pop the first value off the stack and store its value into a
+    add *x, *y # add the value at 'b' into the value at 'a'
+    ret *x # set the return value as the value of 'a'
+    del x # delete the memory for 'a'
+    del y # delete the memory for 'b'
 }
 
-addf { # a simple add function
-    ref b, 8 # allocate 8 bytes for 'b'
-    pull *b # pop the first value off the stack and store its value into a
-    ref a, 8 # allocate 8 bytes for 'a'
-    pull *a # pop the first value off the stack and store its value into a
-    add *a, *b # add the value at 'b' into the value at 'a'
-    ret *a # set the return value as the value of 'a'
-    del a # delete the memory for 'a'
-    del b # delete the memory for 'b'
+main { # our entry point label
+    ref result, 8
+    pass 10
+    pass 20
+    call a
+    store *result
+    pass "%d"
+    pass *result
+    call printf
+    del result
+    ret 0
 }

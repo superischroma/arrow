@@ -80,82 +80,88 @@ int main(int argc, char** argv)
         std::cout << c->content << ", " << arrow::token_types::name(c->type) << std::endl;
     fis.close();
     current = first_token->next;
-    arrow::parser par = arrow::parser(current, os);
-    while (par.good())
+    arrow::parser parser = arrow::parser(current, os);
+    while (parser.good())
     {
-        arrow::evaluation_state ls = par.label_start();
+        arrow::evaluation_state ls = parser.label_start();
         std::cout << "ls: " << arrow::evaluation_states::name(ls) << std::endl;
         if (ls == arrow::evaluation_states::SYNTAX_ERROR)
             return -1;
         if (ls == arrow::evaluation_states::FOUND)
             continue;
-        arrow::evaluation_state le = par.label_end();
+        arrow::evaluation_state le = parser.label_end();
         std::cout << "le: " << arrow::evaluation_states::name(le) << std::endl;
         if (le == arrow::evaluation_states::SYNTAX_ERROR)
             return -1;
         if (le == arrow::evaluation_states::FOUND)
             continue;
-        arrow::evaluation_state ila = par.il_asm();
+        arrow::evaluation_state ila = parser.il_asm();
         std::cout << "ila: " << arrow::evaluation_states::name(ila) << std::endl;
         if (ila == arrow::evaluation_states::SYNTAX_ERROR)
             return -1;
         if (ila == arrow::evaluation_states::FOUND)
             continue;
-        arrow::evaluation_state pa = par.pass();
+        arrow::evaluation_state st = parser.store();
+        std::cout << "st: " << arrow::evaluation_states::name(st) << std::endl;
+        if (st == arrow::evaluation_states::SYNTAX_ERROR)
+            return -1;
+        if (st == arrow::evaluation_states::FOUND)
+            continue;
+        arrow::evaluation_state pa = parser.pass();
         std::cout << "pa: " << arrow::evaluation_states::name(pa) << std::endl;
         if (pa == arrow::evaluation_states::SYNTAX_ERROR)
             return -1;
         if (pa == arrow::evaluation_states::FOUND)
             continue;
-        arrow::evaluation_state pu = par.pull();
+        arrow::evaluation_state pu = parser.pull();
         std::cout << "pu: " << arrow::evaluation_states::name(pu) << std::endl;
         if (pu == arrow::evaluation_states::SYNTAX_ERROR)
             return -1;
         if (pu == arrow::evaluation_states::FOUND)
             continue;
-        arrow::evaluation_state del = par.del();
+        arrow::evaluation_state del = parser.del();
         std::cout << "del: " << arrow::evaluation_states::name(del) << std::endl;
         if (del == arrow::evaluation_states::SYNTAX_ERROR)
             return -1;
         if (del == arrow::evaluation_states::FOUND)
             continue;
-        arrow::evaluation_state def = par.define();
+        arrow::evaluation_state def = parser.define();
         std::cout << "def: " << arrow::evaluation_states::name(def) << std::endl;
         if (def == arrow::evaluation_states::SYNTAX_ERROR)
             return -1;
         if (def == arrow::evaluation_states::FOUND)
             continue;
-        arrow::evaluation_state cp = par.copy();
+        arrow::evaluation_state cp = parser.copy();
         std::cout << "cp: " << arrow::evaluation_states::name(cp) << std::endl;
         if (cp == arrow::evaluation_states::SYNTAX_ERROR)
             return -1;
         if (cp == arrow::evaluation_states::FOUND)
             continue;
-        arrow::evaluation_state add = par.add();
+        arrow::evaluation_state add = parser.add();
         std::cout << "add: " << arrow::evaluation_states::name(add) << std::endl;
         if (add == arrow::evaluation_states::SYNTAX_ERROR)
             return -1;
         if (add == arrow::evaluation_states::FOUND)
             continue;
-        arrow::evaluation_state re = par.ret();
+        arrow::evaluation_state re = parser.ret();
         std::cout << "re: " << arrow::evaluation_states::name(re) << std::endl;
         if (re == arrow::evaluation_states::SYNTAX_ERROR)
             return -1;
         if (re == arrow::evaluation_states::FOUND)
             continue;
-        arrow::evaluation_state se = par.set();
+        arrow::evaluation_state se = parser.set();
         std::cout << "se: " << arrow::evaluation_states::name(se) << std::endl;
         if (se == arrow::evaluation_states::SYNTAX_ERROR)
             return -1;
         if (se == arrow::evaluation_states::FOUND)
             continue;
-        arrow::evaluation_state rf = par.reference();
+        arrow::evaluation_state rf = parser.reference();
         std::cout << "rf: " << arrow::evaluation_states::name(rf) << std::endl;
         if (rf == arrow::evaluation_states::SYNTAX_ERROR)
             return -1;
         if (rf == arrow::evaluation_states::FOUND)
             continue;
-        arrow::evaluation_state ca = par.call();
+        arrow::evaluation_state ca = parser.call();
         std::cout << "ca: " << arrow::evaluation_states::name(ca) << std::endl;
         if (ca == arrow::evaluation_states::SYNTAX_ERROR)
             return -1;
@@ -163,8 +169,13 @@ int main(int argc, char** argv)
             continue;
         break;
     }
+    if (!parser.has_symbol("main"))
+    {
+        arrow::err("no entry point found for application. define a label named 'main'");
+        return -1;
+    }
     std::ofstream fos = std::ofstream(std::string(argv[1]) + ".asm");
-    std::string out = par.result();
+    std::string out = parser.result();
     fos.write(out.c_str(), out.length());
     fos.close();
     free_tokens(first_token);

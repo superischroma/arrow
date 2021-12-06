@@ -310,7 +310,6 @@ namespace arrow
             return evaluation_states::SYNTAX_ERROR;
         }
         if (e == evaluation_states::SYNTAX_ERROR) return evaluation_states::SYNTAX_ERROR;
-        arguments++;
         return evaluation_states::FOUND;
     }
 
@@ -325,12 +324,8 @@ namespace arrow
         if (check_eof(t, false)) return evaluation_states::NEUTRAL;
         if (t->content != "pull") return evaluation_states::NEUTRAL;
         if (check_eof(t = t->next)) return evaluation_states::SYNTAX_ERROR;
-        if (arguments <= 0)
-        {
-            arrow::err("no available arguments to pull", t->line);
-            return evaluation_states::SYNTAX_ERROR;
-        }
         evaluation_state e = evaluate(t, nullptr, false, true);
+        arguments++;
         if (arguments > X64_CALLING_CONVENTION_REGISTERS.size())
         {
             as.instruct(current_scope->t->content, "pop rbx");
@@ -338,7 +333,6 @@ namespace arrow
         }
         else
             as.instruct(current_scope->t->content, "mov [rax], " + X64_CALLING_CONVENTION_REGISTERS[arguments - 1]);
-        arguments--;
         return evaluation_states::FOUND;
     }
 
@@ -352,7 +346,10 @@ namespace arrow
     {
         if (check_eof(t, false)) return evaluation_states::NEUTRAL;
         if (t->content != "ret") return evaluation_states::NEUTRAL;
-        return evaluate(t = t->next, nullptr);
+        evaluation_state e = evaluate(t = t->next, nullptr);
+        as.instruct(current_scope->t->content, "push rax");
+        as.sr(current_scope->t->content)->preserve_ret_value = true;
+        return e;
     }
 
     evaluation_state parser::ret()
@@ -551,8 +548,36 @@ namespace arrow
         return il_asm(c);
     }
 
+    evaluation_state parser::store(token*& t)
+    {
+        if (check_eof(t, false)) return evaluation_states::NEUTRAL;
+        if (t->content != "store") return evaluation_states::NEUTRAL;
+        if (check_eof(t = t->next)) return evaluation_states::SYNTAX_ERROR;
+        as.instruct(current_scope->t->content, "mov rbx, rax");
+        evaluation_state e = evaluate(t, nullptr, false, true);
+        if (e == evaluation_states::NEUTRAL)
+        {
+            arrow::err("expression expected", t->line);
+            return evaluation_states::SYNTAX_ERROR;
+        }
+        if (e == evaluation_states::SYNTAX_ERROR) return e;
+        as.instruct(current_scope->t->content, "mov [rax], rbx");
+        return evaluation_states::FOUND;
+    }
+
+    evaluation_state parser::store()
+    {
+        token*& c = current;
+        return store(c);
+    }
+
     std::string parser::result()
     {
         return as.construct();
+    }
+
+    bool parser::has_symbol(std::string name)
+    {
+        return symbols.find(name) != symbols.end();
     }
 }

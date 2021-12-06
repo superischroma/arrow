@@ -1,0 +1,24 @@
+def printf
+def fscanf
+def fopen
+def fclose
+
+main {
+    ref file, 8
+    pass "a.txt"
+    pass "r"
+    call fopen
+    store *file
+    ref data, 100
+    pass *file
+    pass "%99s"
+    pass data
+    call fscanf
+    pass "%s"
+    pass data
+    call printf
+    pass *file
+    call fclose
+    del data
+    ret 0
+}

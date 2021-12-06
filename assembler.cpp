@@ -83,6 +83,7 @@ namespace arrow
         this->name = name;
         this->stackalloc = 0;
         this->offset_mutilator = 0;
+        this->preserve_ret_value = false;
         this->ending = "ret";
         this->parent = parent;
         this->children = nullptr;
@@ -118,6 +119,8 @@ namespace arrow
                 str += "\n\tsub rsp, " + std::to_string(this->stackalloc);
         }
         str += instructions;
+        if (preserve_ret_value)
+            str += "\n\tpop rax";
         if ((this->parent != nullptr &&
             this->parent->children != nullptr &&
             this->parent->children->size() > 0 &&

@@ -3,6 +3,7 @@
 
 #include <map>
 #include <stack>
+#include <string>
 
 #include "tokenization.h"
 #include "logger.h"
@@ -77,7 +78,10 @@ namespace arrow
         evaluation_state del();
         evaluation_state il_asm(token*& t);
         evaluation_state il_asm();
+        evaluation_state store(token*& t);
+        evaluation_state store();
         std::string result();
+        bool has_symbol(std::string name);
     };
 }
 

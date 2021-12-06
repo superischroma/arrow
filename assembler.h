@@ -27,6 +27,7 @@ namespace arrow
         std::string ending;
         subroutine* parent;
         std::vector<subroutine*>* children;
+        bool preserve_ret_value;
 
         subroutine(std::string name, subroutine* parent);
         subroutine& alloc_delta(int bs);
