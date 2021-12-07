@@ -441,6 +441,16 @@ namespace arrow
     {
         std::string location = dest != nullptr ? "[rbp + " + std::to_string(dest->offset) + ']' : "rax";
         if (check_eof(t, false)) return evaluation_states::NEUTRAL;
+        int dereferences = 0;
+        for (; t != nullptr && t->content == "*"; t = t->next)
+            dereferences++;
+        if (check_eof(t)) return evaluation_states::SYNTAX_ERROR;
+        if (dereferences != 0 && t->type != token_types::IDENTIFIER)
+        {
+            arrow::err("attempt to dereference non-symbol", t->line);
+            return evaluation_states::SYNTAX_ERROR;
+        }
+        /*
         if (t->content == "*")
         {
             if (check_eof(t = t->next))
@@ -477,6 +487,7 @@ namespace arrow
             t = t->next;
             return evaluation_states::FOUND;
         }
+        */
         if (!validate)
         {
             switch (t->type)
@@ -501,11 +512,17 @@ namespace arrow
                     }
                     symbol& sym = symbols[t->content];
                     if (location == "rax")
+                    {
                         as.instruct(current_scope->t->content, std::string(!mutilating ? "mov" : "lea") + " rax, [rbp + " + std::to_string(sym.offset) + ']');
+                        for (int i = 0; i < dereferences; i++)
+                            as.instruct(current_scope->t->content, "mov rax, [rax]");
+                    }
                     else
                     {
                         as.instruct(current_scope->t->content, "push rax");
                         as.instruct(current_scope->t->content, std::string(!mutilating ? "mov" : "lea") + " rax, [rbp + " + std::to_string(sym.offset) + ']');
+                        for (int i = 0; i < dereferences; i++)
+                            as.instruct(current_scope->t->content, "mov rax, [rax]");
                         as.instruct(current_scope->t->content, "mov qword " + location + ", rax");
                         as.instruct(current_scope->t->content, "pop rax");
                     }
