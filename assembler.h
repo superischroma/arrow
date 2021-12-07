@@ -12,7 +12,7 @@ namespace arrow
 {
     typedef std::string register_resolvable;
 
-    extern const char* ARG_REGISTER_SEQUENCE[4];
+    extern std::vector<std::string> X64_CALLING_CONVENTION_REGISTERS;
 
     register_resolvable resolve_register(register_resolvable& identifier, int size);
     register_resolvable resolve_register(register_resolvable&& identifier, int size);
@@ -24,6 +24,7 @@ namespace arrow
         std::string instructions;
         int stackalloc;
         int offset_mutilator;
+        int pulls;
         std::string ending;
         subroutine* parent;
         std::vector<subroutine*>* children;

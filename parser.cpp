@@ -1,9 +1,10 @@
+#include <string>
+
 #include "parser.h"
+#include "assembler.h"
 
 namespace arrow
 {
-    std::vector<std::string> X64_CALLING_CONVENTION_REGISTERS = {"rcx", "rdx", "r8", "r9"};
-
     namespace evaluation_states
     {
         std::string name(evaluation_state es)
@@ -325,14 +326,8 @@ namespace arrow
         if (t->content != "pull") return evaluation_states::NEUTRAL;
         if (check_eof(t = t->next)) return evaluation_states::SYNTAX_ERROR;
         evaluation_state e = evaluate(t, nullptr, false, true);
-        arguments++;
-        if (arguments > X64_CALLING_CONVENTION_REGISTERS.size())
-        {
-            as.instruct(current_scope->t->content, "pop rbx");
-            as.instruct(current_scope->t->content, "mov [rax], rbx");
-        }
-        else
-            as.instruct(current_scope->t->content, "mov [rax], " + X64_CALLING_CONVENTION_REGISTERS[arguments - 1]);
+        as.instruct(current_scope->t->content, "mov rbx, qword [rbp + " + std::to_string(((as.sr(current_scope->t->content)->pulls++) * 8) + 16) + ']');
+        as.instruct(current_scope->t->content, "mov [rax], rbx");
         return evaluation_states::FOUND;
     }
 
@@ -506,11 +501,11 @@ namespace arrow
                     }
                     symbol& sym = symbols[t->content];
                     if (location == "rax")
-                        as.instruct(current_scope->t->content, std::string(!mutilating ? "mov" : "lea") + " rax, qword [rbp + " + std::to_string(sym.offset) + ']');
+                        as.instruct(current_scope->t->content, std::string(!mutilating ? "mov" : "lea") + " rax, [rbp + " + std::to_string(sym.offset) + ']');
                     else
                     {
                         as.instruct(current_scope->t->content, "push rax");
-                        as.instruct(current_scope->t->content, std::string(!mutilating ? "mov" : "lea") + " rax, qword [rbp + " + std::to_string(sym.offset) + ']');
+                        as.instruct(current_scope->t->content, std::string(!mutilating ? "mov" : "lea") + " rax, [rbp + " + std::to_string(sym.offset) + ']');
                         as.instruct(current_scope->t->content, "mov qword " + location + ", rax");
                         as.instruct(current_scope->t->content, "pop rax");
                     }

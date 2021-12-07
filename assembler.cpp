@@ -1,4 +1,5 @@
 #include "assembler.h"
+#include "tokenization.h"
 
 namespace arrow
 {
@@ -21,7 +22,7 @@ namespace arrow
         "r15", "r15d", "r15w", "r15b"
     };
     
-    const char* ARG_REGISTER_SEQUENCE[] = {
+    std::vector<std::string> X64_CALLING_CONVENTION_REGISTERS = {
         "rcx", "rdx", "r8", "r9"
     };
 
@@ -83,6 +84,7 @@ namespace arrow
         this->name = name;
         this->stackalloc = 0;
         this->offset_mutilator = 0;
+        this->pulls = 0;
         this->preserve_ret_value = false;
         this->ending = "ret";
         this->parent = parent;
@@ -118,6 +120,8 @@ namespace arrow
             if (this->stackalloc != 0)
                 str += "\n\tsub rsp, " + std::to_string(this->stackalloc);
         }
+        for (int i = 0; i < (pulls <= 4 ? pulls : 4); i++)
+            str += "\n\tmov [rbp + " + std::to_string((i * 8) + 16) + "], " + X64_CALLING_CONVENTION_REGISTERS[i];
         str += instructions;
         if (preserve_ret_value)
             str += "\n\tpop rax";
